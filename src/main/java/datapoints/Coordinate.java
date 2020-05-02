@@ -1,4 +1,6 @@
-public class Coordinate implements DataPoint {
+package datapoints;
+
+public class Coordinate implements DataPoint<Coordinate> {
 
     private final double latitude;
     private final double longitude;
@@ -8,9 +10,10 @@ public class Coordinate implements DataPoint {
         this.longitude = longitude;
     }
 
+    @Override
     public double distanceTo(Coordinate coordinate) {
         if (this == coordinate) {
-            return -1d;
+            return 0d;
         }
         double earthRadius = 6371000; //meters
         double lat2 = coordinate.latitude;

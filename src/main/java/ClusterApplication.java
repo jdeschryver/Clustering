@@ -1,3 +1,7 @@
+import clusters.ClusterContext;
+import algorithms.KMeans;
+import datapoints.Coordinate;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -13,14 +17,11 @@ public class ClusterApplication {
         List<Coordinate> coordinates = getCoordinates();
 
         System.out.println("Number of coordinates: " + coordinates.size());
-        for (int numberOfClusters = 3; numberOfClusters < 50; numberOfClusters++) {
-            System.out.println("Number of clusters: " + numberOfClusters);
-            KMeans kMeans = new KMeans(numberOfClusters);
+        for (int numberOfClusters = 300; numberOfClusters < 500; numberOfClusters++) {
+            KMeans<Coordinate> kMeans = new KMeans<>(numberOfClusters);
             ClusterContext clusterContext = kMeans.fit(coordinates);
-            System.out.println("=========");
+            System.out.println(clusterContext);
         }
-
-        System.out.println();
     }
 
     private static List<Coordinate> getCoordinates() {

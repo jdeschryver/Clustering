@@ -1,13 +1,18 @@
-public class DataPointClusterPair<C extends Cluster> {
+package algorithms;
 
-    private final Coordinate dataPoint;
+import clusters.Cluster;
+import datapoints.DataPoint;
+
+public class DataClusterPair<D extends DataPoint<D>, C extends Cluster<D>> {
+
+    private final D dataPoint;
     private C cluster;
 
-    public DataPointClusterPair(Coordinate dataPoint) {
+    public DataClusterPair(D dataPoint) {
         this.dataPoint = dataPoint;
     }
 
-    public Coordinate getDataPoint() {
+    public D getDataPoint() {
         return dataPoint;
     }
 
