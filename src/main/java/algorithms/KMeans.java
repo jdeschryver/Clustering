@@ -1,7 +1,6 @@
 package algorithms;
 
 import clusters.ClusterContext;
-import clusters.ClusterLabel;
 import clusters.MedoidCluster;
 import datapoints.DataPoint;
 
@@ -12,7 +11,6 @@ import java.util.List;
 public class KMeans<D extends DataPoint<D>> implements ClusterAlgorithm<D> {
 
     private final int k;
-    private List<MedoidCluster<D>> clusters;
 
     public KMeans(int k) {
         this.k = k;
@@ -21,7 +19,7 @@ public class KMeans<D extends DataPoint<D>> implements ClusterAlgorithm<D> {
     @Override
     public ClusterContext fit(List<D> dataPoints) {
         List<DataClusterPair<D, MedoidCluster<D>>> dataClusterPairs = setupDataPoints(dataPoints);
-        clusters = setupClusters(dataClusterPairs);
+        List<MedoidCluster<D>> clusters = setupClusters(dataClusterPairs);
 
         ClusterContext clusterContext = new ClusterContext(clusters);
 
@@ -87,10 +85,5 @@ public class KMeans<D extends DataPoint<D>> implements ClusterAlgorithm<D> {
             }
         }
         return currentClosestMedoid;
-    }
-
-    @Override
-    public List<ClusterLabel> predict(ClusterContext clusterContext, List<D> dataPoints) {
-        return null;
     }
 }
