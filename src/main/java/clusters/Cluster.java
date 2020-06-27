@@ -1,14 +1,14 @@
 package clusters;
 
-import datapoints.DataPoint;
+import datapoints.OutputDataPoint;
 
 import java.util.Collection;
 
-public interface Cluster<D extends DataPoint<D>> {
+public interface Cluster {
 
-    Collection<D> getElements();
+    Collection<OutputDataPoint> getElements();
 
-    void removeElement(D dataPoint);
+    void removeElement(OutputDataPoint dataPoint);
 
-    void addElement(D dataPoint);
+    void addElement(OutputDataPoint dataPoint);
 }

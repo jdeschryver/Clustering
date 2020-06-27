@@ -1,16 +1,19 @@
 package clusters;
 
+import metrics.Silhouette;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class ClusterContext {
 
-    private final List<? extends Cluster<?>> clusters;
+    private final List<Cluster> clusters;
     private long startTime;
     private long endTime;
     private int iterations;
 
-    public ClusterContext(List<? extends Cluster<?>> clusters) {
-        this.clusters = clusters;
+    public ClusterContext(List<? extends Cluster> clusters) {
+        this.clusters = new ArrayList<>(clusters);
     }
 
     public void start() {
@@ -33,7 +36,7 @@ public class ClusterContext {
         iterations++;
     }
 
-    public List<? extends Cluster<?>> getClusters() {
+    public List<Cluster> getClusters() {
         return clusters;
     }
 
@@ -44,7 +47,7 @@ public class ClusterContext {
     @Override
     public String toString() {
         return "Number of clusters: " + getNumberOfClusters()
-            + ", Duration " + getDurationInMillis() + "ms"
-            + ", Total iterations " + getIterations();
+                + ", Duration: " + getDurationInMillis() + "ms"
+                + ", Total iterations: " + getIterations();
     }
 }

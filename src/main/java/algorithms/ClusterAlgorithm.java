@@ -1,11 +1,11 @@
 package algorithms;
 
 import clusters.ClusterContext;
-import datapoints.DataPoint;
+import datapoints.InputDataPoint;
 
 import java.util.List;
 
-public interface ClusterAlgorithm<D extends DataPoint<D>> {
+public interface ClusterAlgorithm {
 
-    ClusterContext fit(List<D> dataPoints);
+    ClusterContext fit(List<InputDataPoint> dataPoints);
 }

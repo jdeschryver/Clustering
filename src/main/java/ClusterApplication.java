@@ -1,34 +1,39 @@
 import clusters.ClusterContext;
-import algorithms.KMeans;
 import datapoints.Coordinate;
+import datapoints.InputDataPoint;
+import metrics.Elbow;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClusterApplication {
 
-    private static final String PATH = "/Users/jandeschryver/projects/personal/Clustering/src/main/resources/";
-
     public static void main(String[] args) {
-        List<Coordinate> coordinates = getCoordinates();
-
-        System.out.println("Number of coordinates: " + coordinates.size());
-        for (int numberOfClusters = 300; numberOfClusters < 500; numberOfClusters++) {
-            KMeans<Coordinate> kMeans = new KMeans<>(numberOfClusters);
-            ClusterContext clusterContext = kMeans.fit(coordinates);
-            System.out.println(clusterContext);
-        }
+        new ClusterApplication().runTest();
     }
 
-    private static List<Coordinate> getCoordinates() {
-        List<Coordinate> coordinates = new ArrayList<>();
-        File coordinatesFile = new File(PATH + "coordinates");
+    private void runTest() {
+        List<InputDataPoint> coordinates = getCoordinates();
+        System.out.println("Number of coordinates: " + coordinates.size());
+        long startTime = System.currentTimeMillis();
+        ClusterContext clusterContext = Elbow.findBestCluster(coordinates, 4, 400);
+        long stopTime = System.currentTimeMillis();
+        System.out.println("Time: " + (stopTime - startTime) / 1000 +"s");
+        System.out.println(clusterContext);
+    }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(coordinatesFile))) {
+    private List<InputDataPoint> getCoordinates() {
+        List<InputDataPoint> coordinates = new ArrayList<>();
+        URL res = getClass().getClassLoader().getResource("coordinates");
+
+        assert res != null;
+        try (BufferedReader reader = new BufferedReader(new FileReader(Paths.get(res.toURI()).toFile()))) {
             String line = reader.readLine();
             int counter = 0;
             while (line != null && counter++ < 30000) {
@@ -37,7 +42,7 @@ public class ClusterApplication {
                 coordinates.add(coordinate);
                 line = reader.readLine();
             }
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }
         return coordinates;

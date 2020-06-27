@@ -1,6 +1,6 @@
 package datapoints;
 
-public class ContinentCoordinate implements DataPoint<ContinentCoordinate> {
+public class ContinentCoordinate implements InputDataPoint {
 
     private final Coordinate coordinate;
     private final int continent;
@@ -10,11 +10,17 @@ public class ContinentCoordinate implements DataPoint<ContinentCoordinate> {
         this.continent = continent;
     }
 
+
     @Override
-    public double distanceTo(ContinentCoordinate continentCoordinate) {
-        if (continent == continentCoordinate.continent) {
-            return coordinate.distanceTo(continentCoordinate.coordinate);
+    public <D extends InputDataPoint> double distanceTo(D d) {
+        if (d instanceof ContinentCoordinate) {
+            ContinentCoordinate continentCoordinate = (ContinentCoordinate) d;
+            if (continent == continentCoordinate.continent) {
+                return coordinate.distanceTo(continentCoordinate.coordinate);
+            }
+            return Double.MAX_VALUE;
         }
-        return Double.MAX_VALUE;
+        throw new IllegalArgumentException("Incomparable data points: ContinentCoordinate and " + d.getClass());
     }
+
 }

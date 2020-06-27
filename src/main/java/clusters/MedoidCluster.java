@@ -1,60 +1,76 @@
 package clusters;
 
-import datapoints.DataPoint;
+import datapoints.OutputDataPoint;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
-public class MedoidCluster<D extends DataPoint<D>> implements Cluster<D> {
+public class MedoidCluster implements Cluster {
 
-    private D medoid;
-    private final List<D> dataPoints;
+    private OutputDataPoint medoid;
+    private final List<OutputDataPoint> dataPoints;
 
-    public MedoidCluster(D medoid) {
-        this.medoid = medoid;
+    public MedoidCluster() {
         this.dataPoints = new ArrayList<>();
-        dataPoints.add(medoid);
     }
 
     @Override
-    public Collection<D> getElements() {
+    public Collection<OutputDataPoint> getElements() {
         return dataPoints;
     }
 
     @Override
-    public void addElement(D dataPoint) {
+    public void addElement(OutputDataPoint dataPoint) {
         dataPoints.add(dataPoint);
+        assert isValid();
     }
 
     @Override
-    public void removeElement(D dataPoint) {
+    public void removeElement(OutputDataPoint dataPoint) {
         dataPoints.remove(dataPoint);
+        assert isValid();
     }
 
     public void updateMedoid() {
+        assert isValid();
         double smallestDistanceSum = Double.MAX_VALUE;
-        D currentBestMedoid = null;
-        for (D medoidCandidate : dataPoints) {
+        for (OutputDataPoint medoidCandidate : dataPoints) {
             double totalDistanceToMedoidCandidate = 0d;
-            for (D neighbor : dataPoints) {
+            for (OutputDataPoint neighbor : dataPoints) {
                 if (medoidCandidate != neighbor) {
                     totalDistanceToMedoidCandidate += medoidCandidate.distanceTo(neighbor);
                 }
             }
 
             if (totalDistanceToMedoidCandidate < smallestDistanceSum) {
-                currentBestMedoid = medoidCandidate;
+                medoid = medoidCandidate;
                 smallestDistanceSum = totalDistanceToMedoidCandidate;
             }
         }
-
-        if (currentBestMedoid != null) {
-            medoid = currentBestMedoid;
-        }
+        assert medoid.getCluster().map(cluster -> cluster.equals(this)).orElse(false);
     }
 
-    public double distanceToMedoid(D dataPoint) {
+    public double distanceToMedoid(OutputDataPoint dataPoint) {
         return medoid.distanceTo(dataPoint);
+    }
+
+    private boolean isValid() {
+        for (OutputDataPoint dataPoint : dataPoints) {
+            Optional<Cluster> cluster = dataPoint.getCluster();
+            if (!cluster.isPresent()) {
+                return false;
+            }
+            Cluster c = cluster.get();
+            if (!c.equals(this)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public OutputDataPoint getMedoid() {
+        return medoid;
     }
 }

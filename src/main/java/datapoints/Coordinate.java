@@ -1,6 +1,6 @@
 package datapoints;
 
-public class Coordinate implements DataPoint<Coordinate> {
+public class Coordinate implements InputDataPoint {
 
     private final double latitude;
     private final double longitude;
@@ -11,20 +11,17 @@ public class Coordinate implements DataPoint<Coordinate> {
     }
 
     @Override
-    public double distanceTo(Coordinate coordinate) {
-        if (this == coordinate) {
-            return 0d;
+    public <D extends InputDataPoint> double distanceTo(D d) {
+        if (d instanceof Coordinate) {
+            Coordinate coordinate = (Coordinate) d;
+            if (this == coordinate) {
+                return 0d;
+            }
+            return Math.sqrt(
+                    (coordinate.latitude - latitude) * (coordinate.latitude - latitude)
+                            + (coordinate.longitude - longitude) * (coordinate.longitude - longitude)
+            );
         }
-        double earthRadius = 6371000; //meters
-        double lat2 = coordinate.latitude;
-
-        double dLat = Math.toRadians(lat2 - latitude);
-        double dLng = Math.toRadians(coordinate.longitude - longitude);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(Math.toRadians(latitude)) * Math.cos(Math.toRadians(lat2)) *
-                Math.sin(dLng / 2) * Math.sin(dLng / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return earthRadius * c;
+        throw new IllegalArgumentException("Incomparable data points: Coordinate and " + d.getClass());
     }
 }

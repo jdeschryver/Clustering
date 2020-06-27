@@ -2,13 +2,13 @@ package algorithms;
 
 import clusters.ClusterContext;
 import clusters.MedoidCluster;
-import datapoints.DataPoint;
+import datapoints.InputDataPoint;
+import datapoints.OutputDataPoint;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class KMeans<D extends DataPoint<D>> implements ClusterAlgorithm<D> {
+public class KMeans implements ClusterAlgorithm {
 
     private final int k;
 
@@ -17,17 +17,21 @@ public class KMeans<D extends DataPoint<D>> implements ClusterAlgorithm<D> {
     }
 
     @Override
-    public ClusterContext fit(List<D> dataPoints) {
-        List<DataClusterPair<D, MedoidCluster<D>>> dataClusterPairs = setupDataPoints(dataPoints);
-        List<MedoidCluster<D>> clusters = setupClusters(dataClusterPairs);
+    public ClusterContext fit(List<InputDataPoint> inputDataPoints) {
+        List<OutputDataPoint> outputDataPoints = new ArrayList<>();
+        for (InputDataPoint inputDataPoint : inputDataPoints) {
+            OutputDataPoint outputDataPoint = new OutputDataPoint(inputDataPoint);
+            outputDataPoints.add(outputDataPoint);
+        }
 
+        List<MedoidCluster> clusters = setupClusters(outputDataPoints);
         ClusterContext clusterContext = new ClusterContext(clusters);
 
         boolean pointsMoved = true;
         clusterContext.start();
         while (pointsMoved) {
             clusterContext.iterate();
-            pointsMoved = clusterDataPoints(dataClusterPairs, clusters);
+            pointsMoved = clusterDataPoints(outputDataPoints, clusters);
             updateMedoids(clusters);
         }
         clusterContext.stop();
@@ -35,49 +39,48 @@ public class KMeans<D extends DataPoint<D>> implements ClusterAlgorithm<D> {
         return clusterContext;
     }
 
-    private void updateMedoids(List<MedoidCluster<D>> clusters) {
-        for (MedoidCluster<D> cluster : clusters) {
+    private void updateMedoids(List<MedoidCluster> clusters) {
+        for (MedoidCluster cluster : clusters) {
             cluster.updateMedoid();
         }
     }
 
-    private boolean clusterDataPoints(List<DataClusterPair<D, MedoidCluster<D>>> dataClusterPairs, List<MedoidCluster<D>> clusters) {
+    private boolean clusterDataPoints(List<OutputDataPoint> dataPoints, List<MedoidCluster> clusters) {
         boolean pointsMoved = false;
-        for (DataClusterPair<D, MedoidCluster<D>> pair : dataClusterPairs) {
-            D dataPoint = pair.getDataPoint();
-            MedoidCluster<D> closestCluster = findClosestCluster(clusters, dataPoint);
-            pointsMoved |= pair.moveToCluster(closestCluster);
+        List<OutputDataPoint> medoids = new ArrayList<>();
+        for (MedoidCluster medoidCluster : clusters) {
+            OutputDataPoint medoid = medoidCluster.getMedoid();
+            medoids.add(medoid);
+        }
+
+        assert clusters.stream().allMatch(cluster -> cluster.getMedoid().getCluster().get().equals(cluster));
+
+        for (OutputDataPoint dataPoint : dataPoints) {
+            if (!medoids.contains(dataPoint)) {
+                MedoidCluster closestCluster = findClosestCluster(clusters, dataPoint);
+                pointsMoved |= dataPoint.moveToCluster(closestCluster);
+            }
         }
         return pointsMoved;
     }
 
-    private List<MedoidCluster<D>> setupClusters(List<DataClusterPair<D, MedoidCluster<D>>> dataClusterPairs) {
-        List<MedoidCluster<D>> clusters = new ArrayList<>();
+    private List<MedoidCluster> setupClusters(List<OutputDataPoint> dataPoints) {
+        List<MedoidCluster> clusters = new ArrayList<>();
 
         for (int index = 0; index < k; index++) {
-            DataClusterPair<D, MedoidCluster<D>> pair = dataClusterPairs.get(index);
-            MedoidCluster<D> cluster = new MedoidCluster<>(pair.getDataPoint());
-            pair.setCluster(cluster);
+            OutputDataPoint dataPoint = dataPoints.get(index);
+            MedoidCluster cluster = new MedoidCluster();
+            dataPoint.moveToCluster(cluster);
+            cluster.updateMedoid();
             clusters.add(cluster);
         }
         return clusters;
     }
 
-    private List<DataClusterPair<D, MedoidCluster<D>>> setupDataPoints(List<D> dataPoints) {
-        List<DataClusterPair<D, MedoidCluster<D>>> dataClusterPairs = new ArrayList<>();
-        for (D dataPoint : dataPoints) {
-            DataClusterPair<D, MedoidCluster<D>> pair = new DataClusterPair<>(dataPoint);
-            dataClusterPairs.add(pair);
-        }
-
-        Collections.shuffle(dataClusterPairs);
-        return dataClusterPairs;
-    }
-
-    private MedoidCluster<D> findClosestCluster(List<MedoidCluster<D>> clusters, D dataPoint) {
+    private MedoidCluster findClosestCluster(List<MedoidCluster> clusters, OutputDataPoint dataPoint) {
         double currentSmallestMedoidDistance = Double.MAX_VALUE;
-        MedoidCluster<D> currentClosestMedoid = null;
-        for (MedoidCluster<D> medoidCluster : clusters) {
+        MedoidCluster currentClosestMedoid = null;
+        for (MedoidCluster medoidCluster : clusters) {
             double distanceToMedoid = medoidCluster.distanceToMedoid(dataPoint);
             if (distanceToMedoid < currentSmallestMedoidDistance) {
                 currentSmallestMedoidDistance = distanceToMedoid;
