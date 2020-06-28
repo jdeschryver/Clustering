@@ -1,4 +1,4 @@
-import clusters.ClusterContext;
+import clusters.Cluster;
 import datapoints.Coordinate;
 import datapoints.InputDataPoint;
 import metrics.Elbow;
@@ -22,10 +22,10 @@ public class ClusterApplication {
         List<InputDataPoint> coordinates = getCoordinates();
         System.out.println("Number of coordinates: " + coordinates.size());
         long startTime = System.currentTimeMillis();
-        ClusterContext clusterContext = Elbow.findBestCluster(coordinates, 4, 400);
+        List<Cluster> clusters = Elbow.findBestCluster(coordinates, 4, 400);
         long stopTime = System.currentTimeMillis();
-        System.out.println("Time: " + (stopTime - startTime) / 1000 +"s");
-        System.out.println(clusterContext);
+        System.out.println("Time: " + (stopTime - startTime) / 1000 + "s");
+        System.out.println("Clusters: " + clusters.size());
     }
 
     private List<InputDataPoint> getCoordinates() {

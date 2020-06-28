@@ -1,6 +1,6 @@
 package algorithms;
 
-import clusters.ClusterContext;
+import clusters.Cluster;
 import clusters.MedoidCluster;
 import datapoints.InputDataPoint;
 import datapoints.OutputDataPoint;
@@ -17,7 +17,7 @@ public class KMeans implements ClusterAlgorithm {
     }
 
     @Override
-    public ClusterContext fit(List<InputDataPoint> inputDataPoints) {
+    public List<Cluster> fit(List<InputDataPoint> inputDataPoints) {
         List<OutputDataPoint> outputDataPoints = new ArrayList<>();
         for (InputDataPoint inputDataPoint : inputDataPoints) {
             OutputDataPoint outputDataPoint = new OutputDataPoint(inputDataPoint);
@@ -25,18 +25,14 @@ public class KMeans implements ClusterAlgorithm {
         }
 
         List<MedoidCluster> clusters = setupClusters(outputDataPoints);
-        ClusterContext clusterContext = new ClusterContext(clusters);
 
         boolean pointsMoved = true;
-        clusterContext.start();
         while (pointsMoved) {
-            clusterContext.iterate();
             pointsMoved = clusterDataPoints(outputDataPoints, clusters);
             updateMedoids(clusters);
         }
-        clusterContext.stop();
 
-        return clusterContext;
+        return new ArrayList<>(clusters);
     }
 
     private void updateMedoids(List<MedoidCluster> clusters) {
@@ -52,8 +48,6 @@ public class KMeans implements ClusterAlgorithm {
             OutputDataPoint medoid = medoidCluster.getMedoid();
             medoids.add(medoid);
         }
-
-        assert clusters.stream().allMatch(cluster -> cluster.getMedoid().getCluster().get().equals(cluster));
 
         for (OutputDataPoint dataPoint : dataPoints) {
             if (!medoids.contains(dataPoint)) {
