@@ -1,6 +1,6 @@
 package clusters;
 
-import datapoints.OutputDataPoint;
+import datapoints.ClusteredDataPoint;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,26 +9,26 @@ import java.util.Optional;
 
 public class MedoidCluster implements Cluster {
 
-    private OutputDataPoint medoid;
-    private final List<OutputDataPoint> dataPoints;
+    private ClusteredDataPoint medoid;
+    private final List<ClusteredDataPoint> dataPoints;
 
     public MedoidCluster() {
         this.dataPoints = new ArrayList<>();
     }
 
     @Override
-    public Collection<OutputDataPoint> getElements() {
+    public Collection<ClusteredDataPoint> getElements() {
         return dataPoints;
     }
 
     @Override
-    public void addElement(OutputDataPoint dataPoint) {
+    public void addElement(ClusteredDataPoint dataPoint) {
         dataPoints.add(dataPoint);
         assert isValid();
     }
 
     @Override
-    public void removeElement(OutputDataPoint dataPoint) {
+    public void removeElement(ClusteredDataPoint dataPoint) {
         dataPoints.remove(dataPoint);
         assert isValid();
     }
@@ -36,9 +36,9 @@ public class MedoidCluster implements Cluster {
     public void updateMedoid() {
         assert isValid();
         double smallestDistanceSum = Double.MAX_VALUE;
-        for (OutputDataPoint medoidCandidate : dataPoints) {
+        for (ClusteredDataPoint medoidCandidate : dataPoints) {
             double totalDistanceToMedoidCandidate = 0d;
-            for (OutputDataPoint neighbor : dataPoints) {
+            for (ClusteredDataPoint neighbor : dataPoints) {
                 if (medoidCandidate != neighbor) {
                     totalDistanceToMedoidCandidate += medoidCandidate.distanceTo(neighbor);
                 }
@@ -52,12 +52,12 @@ public class MedoidCluster implements Cluster {
         assert medoid.getCluster().map(cluster -> cluster.equals(this)).orElse(false);
     }
 
-    public double distanceToMedoid(OutputDataPoint dataPoint) {
+    public double distanceToMedoid(ClusteredDataPoint dataPoint) {
         return medoid.distanceTo(dataPoint);
     }
 
     private boolean isValid() {
-        for (OutputDataPoint dataPoint : dataPoints) {
+        for (ClusteredDataPoint dataPoint : dataPoints) {
             Optional<Cluster> cluster = dataPoint.getCluster();
             if (!cluster.isPresent()) {
                 return false;
@@ -70,7 +70,7 @@ public class MedoidCluster implements Cluster {
         return true;
     }
 
-    public OutputDataPoint getMedoid() {
+    public ClusteredDataPoint getMedoid() {
         return medoid;
     }
 }

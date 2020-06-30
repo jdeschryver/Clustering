@@ -5,8 +5,13 @@ import clusters.Cluster;
 import datapoints.InputDataPoint;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Elbow {
+
+    private static final int ITERATIONS_WITHOUT_PROGRESS = 50;
+    private static final double PROGRESS_THRESHOLD = 0.05;
+    private static final Logger LOGGER = Logger.getLogger(Elbow.class.getName());
 
     public static List<Cluster> findBestCluster(List<InputDataPoint> dataPoints, int minK, int maxK) {
         KMeans firstKmeans = new KMeans(minK);
@@ -21,8 +26,10 @@ public class Elbow {
             List<Cluster> clusters = kMeans.fit(dataPoints);
             double currentScore = Silhouette.score(clusters);
 
-            if (Math.abs(currentScore - previousScore) < 0.05) {
-                if (++noProgress == 50) {
+            LOGGER.info("Clustering found: " + clusters.size() + " clusters, with score " + currentScore);
+
+            if (Math.abs(currentScore - previousScore) < PROGRESS_THRESHOLD) {
+                if (++noProgress == ITERATIONS_WITHOUT_PROGRESS) {
                     return currentStartNoProgress;
                 }
             } else {

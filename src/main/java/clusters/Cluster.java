@@ -1,14 +1,14 @@
 package clusters;
 
-import datapoints.OutputDataPoint;
+import datapoints.ClusteredDataPoint;
 
 import java.util.Collection;
 
 public interface Cluster {
 
-    Collection<OutputDataPoint> getElements();
+    Collection<ClusteredDataPoint> getElements();
 
-    void removeElement(OutputDataPoint dataPoint);
+    void removeElement(ClusteredDataPoint dataPoint);
 
-    void addElement(OutputDataPoint dataPoint);
+    void addElement(ClusteredDataPoint dataPoint);
 }

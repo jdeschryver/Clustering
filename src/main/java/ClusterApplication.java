@@ -30,7 +30,7 @@ public class ClusterApplication {
 
     private List<InputDataPoint> getCoordinates() {
         List<InputDataPoint> coordinates = new ArrayList<>();
-        URL res = getClass().getClassLoader().getResource("coordinates");
+        URL res = getClass().getClassLoader().getResource("coordinates_10000");
 
         assert res != null;
         try (BufferedReader reader = new BufferedReader(new FileReader(Paths.get(res.toURI()).toFile()))) {

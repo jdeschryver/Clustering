@@ -1,7 +1,7 @@
 package metrics;
 
 import clusters.Cluster;
-import datapoints.OutputDataPoint;
+import datapoints.ClusteredDataPoint;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ public class Silhouette {
         int numberOfDataPoints = 0;
         double summedSilhouette = 0d;
         for (Cluster cluster : clusters) {
-            for (OutputDataPoint dataPoint : cluster.getElements()) {
+            for (ClusteredDataPoint dataPoint : cluster.getElements()) {
                 summedSilhouette += score(dataPoint, cluster, clusters);
                 numberOfDataPoints++;
             }
@@ -19,20 +19,20 @@ public class Silhouette {
         return summedSilhouette / numberOfDataPoints;
     }
 
-    private static double score(OutputDataPoint dataPoint, Cluster clusterDataPoint, List<Cluster> clusters) {
+    private static double score(ClusteredDataPoint dataPoint, Cluster clusterDataPoint, List<Cluster> clusters) {
         double similarity = similarity(dataPoint, clusterDataPoint);
         double dissimilarity = dissimilarity(dataPoint, clusterDataPoint, clusters);
 
         return similarity == dissimilarity ? 0 : (dissimilarity - similarity) / Math.max(dissimilarity, similarity);
     }
 
-    private static double dissimilarity(OutputDataPoint dataPoint, Cluster clusterDataPoint, List<Cluster> clusters) {
+    private static double dissimilarity(ClusteredDataPoint dataPoint, Cluster clusterDataPoint, List<Cluster> clusters) {
         double smallestDissimilarity = Double.MAX_VALUE;
 
         for (Cluster cluster : clusters) {
             if (!clusterDataPoint.equals(cluster)) {
                 double summedDistance = 0d;
-                for (OutputDataPoint otherPoint : cluster.getElements()) {
+                for (ClusteredDataPoint otherPoint : cluster.getElements()) {
                     summedDistance += dataPoint.distanceTo(otherPoint);
                 }
                 double averageDistance = summedDistance / cluster.getElements().size();
@@ -45,9 +45,9 @@ public class Silhouette {
         return smallestDissimilarity;
     }
 
-    private static double similarity(OutputDataPoint dataPoint, Cluster cluster) {
+    private static double similarity(ClusteredDataPoint dataPoint, Cluster cluster) {
         double summedDistance = 0d;
-        for (OutputDataPoint otherPoint : cluster.getElements()) {
+        for (ClusteredDataPoint otherPoint : cluster.getElements()) {
             if (!dataPoint.equals(otherPoint)) {
                 summedDistance += dataPoint.distanceTo(otherPoint);
             }

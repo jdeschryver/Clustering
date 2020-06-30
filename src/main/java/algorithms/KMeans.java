@@ -3,7 +3,7 @@ package algorithms;
 import clusters.Cluster;
 import clusters.MedoidCluster;
 import datapoints.InputDataPoint;
-import datapoints.OutputDataPoint;
+import datapoints.ClusteredDataPoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,21 +18,23 @@ public class KMeans implements ClusterAlgorithm {
 
     @Override
     public List<Cluster> fit(List<InputDataPoint> inputDataPoints) {
-        List<OutputDataPoint> outputDataPoints = new ArrayList<>();
-        for (InputDataPoint inputDataPoint : inputDataPoints) {
-            OutputDataPoint outputDataPoint = new OutputDataPoint(inputDataPoint);
-            outputDataPoints.add(outputDataPoint);
-        }
+        List<ClusteredDataPoint> clusteredDataPoints = getOutputDataPoints(inputDataPoints);
+        List<MedoidCluster> clusters = setupClusters(clusteredDataPoints);
 
-        List<MedoidCluster> clusters = setupClusters(outputDataPoints);
-
-        boolean pointsMoved = true;
-        while (pointsMoved) {
-            pointsMoved = clusterDataPoints(outputDataPoints, clusters);
+        while (clusterDataPoints(clusteredDataPoints, clusters)) {
             updateMedoids(clusters);
         }
 
         return new ArrayList<>(clusters);
+    }
+
+    private List<ClusteredDataPoint> getOutputDataPoints(List<InputDataPoint> inputDataPoints) {
+        List<ClusteredDataPoint> clusteredDataPoints = new ArrayList<>();
+        for (InputDataPoint inputDataPoint : inputDataPoints) {
+            ClusteredDataPoint clusteredDataPoint = new ClusteredDataPoint(inputDataPoint);
+            clusteredDataPoints.add(clusteredDataPoint);
+        }
+        return clusteredDataPoints;
     }
 
     private void updateMedoids(List<MedoidCluster> clusters) {
@@ -41,15 +43,15 @@ public class KMeans implements ClusterAlgorithm {
         }
     }
 
-    private boolean clusterDataPoints(List<OutputDataPoint> dataPoints, List<MedoidCluster> clusters) {
+    private boolean clusterDataPoints(List<ClusteredDataPoint> dataPoints, List<MedoidCluster> clusters) {
         boolean pointsMoved = false;
-        List<OutputDataPoint> medoids = new ArrayList<>();
+        List<ClusteredDataPoint> medoids = new ArrayList<>();
         for (MedoidCluster medoidCluster : clusters) {
-            OutputDataPoint medoid = medoidCluster.getMedoid();
+            ClusteredDataPoint medoid = medoidCluster.getMedoid();
             medoids.add(medoid);
         }
 
-        for (OutputDataPoint dataPoint : dataPoints) {
+        for (ClusteredDataPoint dataPoint : dataPoints) {
             if (!medoids.contains(dataPoint)) {
                 MedoidCluster closestCluster = findClosestCluster(clusters, dataPoint);
                 pointsMoved |= dataPoint.moveToCluster(closestCluster);
@@ -58,11 +60,11 @@ public class KMeans implements ClusterAlgorithm {
         return pointsMoved;
     }
 
-    private List<MedoidCluster> setupClusters(List<OutputDataPoint> dataPoints) {
+    private List<MedoidCluster> setupClusters(List<ClusteredDataPoint> dataPoints) {
         List<MedoidCluster> clusters = new ArrayList<>();
 
         for (int index = 0; index < k; index++) {
-            OutputDataPoint dataPoint = dataPoints.get(index);
+            ClusteredDataPoint dataPoint = dataPoints.get(index);
             MedoidCluster cluster = new MedoidCluster();
             dataPoint.moveToCluster(cluster);
             cluster.updateMedoid();
@@ -71,7 +73,7 @@ public class KMeans implements ClusterAlgorithm {
         return clusters;
     }
 
-    private MedoidCluster findClosestCluster(List<MedoidCluster> clusters, OutputDataPoint dataPoint) {
+    private MedoidCluster findClosestCluster(List<MedoidCluster> clusters, ClusteredDataPoint dataPoint) {
         double currentSmallestMedoidDistance = Double.MAX_VALUE;
         MedoidCluster currentClosestMedoid = null;
         for (MedoidCluster medoidCluster : clusters) {

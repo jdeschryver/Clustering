@@ -4,12 +4,12 @@ import clusters.Cluster;
 
 import java.util.Optional;
 
-public class OutputDataPoint {
+public class ClusteredDataPoint {
 
     private final InputDataPoint inputDataPoint;
     private Cluster cluster;
 
-    public OutputDataPoint(InputDataPoint inputDataPoint) {
+    public ClusteredDataPoint(InputDataPoint inputDataPoint) {
         this.inputDataPoint = inputDataPoint;
     }
 
@@ -30,7 +30,7 @@ public class OutputDataPoint {
     }
 
 
-    public double distanceTo(OutputDataPoint outputDataPoint) {
-        return inputDataPoint.distanceTo(outputDataPoint.inputDataPoint);
+    public double distanceTo(ClusteredDataPoint clusteredDataPoint) {
+        return inputDataPoint.distanceTo(clusteredDataPoint.inputDataPoint);
     }
 }
