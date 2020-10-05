@@ -29,6 +29,9 @@ public class ClusteredDataPoint {
         return false;
     }
 
+    public InputDataPoint getInputDataPoint() {
+        return inputDataPoint;
+    }
 
     public double distanceTo(ClusteredDataPoint clusteredDataPoint) {
         return inputDataPoint.distanceTo(clusteredDataPoint.inputDataPoint);

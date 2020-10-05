@@ -1,6 +1,7 @@
 package metrics;
 
 import algorithms.KMeans;
+import algorithms.medoidselectors.MedoidSelector;
 import clusters.Cluster;
 import datapoints.InputDataPoint;
 
@@ -14,7 +15,7 @@ public class Elbow {
     private static final Logger LOGGER = Logger.getLogger(Elbow.class.getName());
 
     public static List<Cluster> findBestCluster(List<InputDataPoint> dataPoints, int minK, int maxK) {
-        KMeans firstKmeans = new KMeans(minK);
+        KMeans firstKmeans = new KMeans(minK, MedoidSelector.farthestPointMedoidSelector());
         List<Cluster> clustersKmin = firstKmeans.fit(dataPoints);
 
         double previousScore = Silhouette.score(clustersKmin);
@@ -22,7 +23,7 @@ public class Elbow {
         int noProgress = 0;
 
         for (int numberOfClusters = minK + 1; numberOfClusters < maxK; numberOfClusters++) {
-            KMeans kMeans = new KMeans(numberOfClusters);
+            KMeans kMeans = new KMeans(numberOfClusters, MedoidSelector.farthestPointMedoidSelector());
             List<Cluster> clusters = kMeans.fit(dataPoints);
             double currentScore = Silhouette.score(clusters);
 

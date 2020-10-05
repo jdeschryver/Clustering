@@ -1,9 +1,11 @@
 package algorithms;
 
+import algorithms.medoidselectors.MedoidSelector;
 import clusters.Cluster;
 import clusters.MedoidCluster;
 import datapoints.InputDataPoint;
 import datapoints.ClusteredDataPoint;
+import validation.ClusteringValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,19 +13,24 @@ import java.util.List;
 public class KMeans implements ClusterAlgorithm {
 
     private final int k;
+    private final MedoidSelector medoidSelector;
 
-    public KMeans(int k) {
+    public KMeans(int k, MedoidSelector medoidSelector) {
         this.k = k;
+        this.medoidSelector = medoidSelector;
     }
 
     @Override
     public List<Cluster> fit(List<InputDataPoint> inputDataPoints) {
         List<ClusteredDataPoint> clusteredDataPoints = getOutputDataPoints(inputDataPoints);
-        List<MedoidCluster> clusters = setupClusters(clusteredDataPoints);
+        List<ClusteredDataPoint> medoids = medoidSelector.calculateInitialMedoids(clusteredDataPoints, k);
+        List<MedoidCluster> clusters = setupClusters(medoids);
 
         while (clusterDataPoints(clusteredDataPoints, clusters)) {
             updateMedoids(clusters);
         }
+
+        assert ClusteringValidator.isValidCompleteClustering(clusters, inputDataPoints);
 
         return new ArrayList<>(clusters);
     }
@@ -60,16 +67,16 @@ public class KMeans implements ClusterAlgorithm {
         return pointsMoved;
     }
 
-    private List<MedoidCluster> setupClusters(List<ClusteredDataPoint> dataPoints) {
+    private List<MedoidCluster> setupClusters(List<ClusteredDataPoint> medoids) {
         List<MedoidCluster> clusters = new ArrayList<>();
 
-        for (int index = 0; index < k; index++) {
-            ClusteredDataPoint dataPoint = dataPoints.get(index);
+        for (ClusteredDataPoint medoid : medoids) {
             MedoidCluster cluster = new MedoidCluster();
-            dataPoint.moveToCluster(cluster);
+            medoid.moveToCluster(cluster);
             cluster.updateMedoid();
             clusters.add(cluster);
         }
+
         return clusters;
     }
 
